@@ -5,14 +5,17 @@ on:
     # 08:00 ora italiana = 06:00 UTC (estate CEST, UTC+2)
     # Martedì–Sabato: report giornaliero del giorno precedente
     - cron: '0 6 * * 2-6'
-    # Lunedì: report settimanale
+    # Lunedì: report settimanale della settimana precedente
     - cron: '0 6 * * 1'
-  workflow_dispatch:    # permette avvio manuale dalla scheda Actions
+    # 1°, 2° e 3° di ogni mese (lo script decide internamente
+    # se è il primo giorno lavorativo e invia il report mensile)
+    - cron: '0 6 1-3 * *'
+  workflow_dispatch:    # avvio manuale dalla scheda Actions
 
 jobs:
   send-report:
     runs-on: ubuntu-latest
-    timeout-minutes: 25   # ~3200 titoli richiedono più tempo
+    timeout-minutes: 30   # il report mensile scarica più dati
 
     steps:
       - name: Checkout repository
