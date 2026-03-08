@@ -518,11 +518,25 @@ def fmt_cap(v):
     return f"{v/1e6:.0f}M"
 
 def ylink(ticker, name):
-    url  = f"https://finance.yahoo.com/quote/{ticker}"
+    # Nome azienda come testo cliccabile → Yahoo Finance
+    y_url = f"https://finance.yahoo.com/quote/{ticker}"
+    # Google Finance come alternativa
+    suffix_to_goog = {
+        ".PA": "EPA", ".MI": "BIT", ".DE": "XETRA", ".L": "LON",
+        ".AS": "AMS", ".MC": "BME", ".SW": "SWX", ".T": "TYO",
+        ".KS": "KRX", ".HK": "HKEX", ".AX": "ASX", ".SA": "BVMF",
+        ".NS": "NSE", ".BO": "BOM",
+    }
+    g_prefix = next((v for k, v in suffix_to_goog.items() if ticker.endswith(k)), None)
+    g_base   = ticker.split(".")[0] if "." in ticker else ticker
+    g_url    = (f"https://www.google.com/finance/quote/{g_base}:{g_prefix}"
+                if g_prefix else f"https://www.google.com/finance/quote/{ticker}:NASDAQ")
     safe = str(name).replace('"', "&quot;")
     disp = (safe[:36] + "…") if len(safe) > 36 else safe
-    return (f'<a href="{url}" title="{safe}" '
-            f'style="color:#1a1a2e;text-decoration:none;font-weight:bold">{disp}</a>')
+    return (f'<a href="{y_url}" title="Apri su Yahoo Finance" '
+            f'style="color:#1a1a2e;text-decoration:none;font-weight:bold">{disp}</a>'
+            f' &nbsp;<a href="{g_url}" title="Apri su Google Finance" '
+            f'style="color:#888;text-decoration:none;font-size:10px">[G]</a>')
 
 def fmt_price(v): return f"{v:.2f}" if not pd.isna(v) else "—"
 
@@ -531,15 +545,16 @@ def indici_bar(indici_info):
     for d in indici_info.values():
         v  = d["var"]
         ok = not pd.isna(v)
-        c  = "#cc0000" if (ok and v < 0) else "#00aa44"
+        c  = "#ff4444" if (ok and v < 0) else "#44dd77"
         a  = "▼" if (ok and v < 0) else "▲"
         val = f"{a} {v:+.2f}%" if ok else "—"
         items += (f'<div style="text-align:center;padding:8px 10px;'
-                  f'background:rgba(255,255,255,0.12);border-radius:6px;min-width:85px;flex:1 1 85px">'
-                  f'<div style="font-size:10px;opacity:0.75;margin-bottom:2px">{d["nome"]}</div>'
+                  f'background:#2d3a4a;border-radius:6px;min-width:85px;flex:1 1 85px;'
+                  f'border:1px solid #3d4f63">'
+                  f'<div style="font-size:10px;color:#c8d8e8;margin-bottom:2px;font-weight:bold">{d["nome"]}</div>'
                   f'<div style="font-size:13px;font-weight:bold;color:{c}">{val}</div>'
-                  f'<div style="font-size:9px;opacity:0.5">{d["borsa"]}</div></div>')
-    return (f'<div style="background:#1a1a2e;padding:14px 16px;border-radius:8px;'
+                  f'<div style="font-size:9px;color:#8aaabb">{d["borsa"]}</div></div>')
+    return (f'<div style="background:#1a2535;padding:14px 16px;border-radius:8px;'
             f'display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px">{items}</div>')
 
 # ── Costruzione tabelle ────────────────────────────────────────────────────────
