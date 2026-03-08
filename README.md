@@ -1,2 +1,2 @@
 # stock-report
-riepilogo titolti
+riepilogo titoli
