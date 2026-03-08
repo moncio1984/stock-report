@@ -1,0 +1,2 @@
+# stock-report
+riepilogo titolti
