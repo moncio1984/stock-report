@@ -1,0 +1,34 @@
+name: Stock Market Report
+
+on:
+  schedule:
+    # 08:00 ora italiana = 06:00 UTC (estate CEST, UTC+2)
+    # Martedì–Sabato: report giornaliero del giorno precedente
+    - cron: '0 6 * * 2-6'
+    # Lunedì: report settimanale
+    - cron: '0 6 * * 1'
+  workflow_dispatch:    # permette avvio manuale dalla scheda Actions
+
+jobs:
+  send-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25   # ~3200 titoli richiedono più tempo
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install yfinance pandas requests lxml html5lib beautifulsoup4
+
+      - name: Run stock report
+        env:
+          EMAIL_MITTENTE:     ${{ secrets.EMAIL_MITTENTE }}
+          APP_PASSWORD:       ${{ secrets.APP_PASSWORD }}
+          EMAIL_DESTINATARIO: ${{ secrets.EMAIL_DESTINATARIO }}
+        run: python stock_report.py
