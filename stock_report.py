@@ -716,15 +716,22 @@ def build_monthly(var_df, info_map, ticker_meta, mese_prec, anno_prec):
 # ── Invio email ────────────────────────────────────────────────────────────────
 
 def invia(subject, html):
+    # Aggiungi qui tutti i destinatari
+    destinatari = [
+        EMAIL_DESTINATARIO,
+        "rusticifrancesco@gmail.com",
+        "napoleone.ferrucci@carlonitires.com",
+    ]
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
     msg["From"]    = EMAIL_MITTENTE
-    msg["To"]      = EMAIL_DESTINATARIO
+    msg["To"]      = ", ".join(destinatari)
     msg.attach(MIMEText(html, "html"))
     ctx = ssl.create_default_context()
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ctx) as s:
         s.login(EMAIL_MITTENTE, APP_PASSWORD)
-        s.sendmail(EMAIL_MITTENTE, EMAIL_DESTINATARIO, msg.as_string())
+        s.sendmail(EMAIL_MITTENTE, destinatari, msg.as_string())
+
     print(f"✅ Email inviata: {subject}")
 
 # ── Logica di scheduling ───────────────────────────────────────────────────────
